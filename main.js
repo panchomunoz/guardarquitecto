@@ -593,9 +593,7 @@ timeline
   function initEmbeddedContactChat() {
     const chat = document.querySelector("#contactChat");
     const typing = document.querySelector("#contactTyping");
-    const delayedMessage = document.querySelector(
-      "#contactDelayedMessage"
-    );
+    const delayedMessage = document.querySelector("#contactDelayedMessage");
 
     if (!chat || !typing || !delayedMessage) return;
 
@@ -604,7 +602,6 @@ timeline
 
     function playConversation() {
       if (hasPlayed) return;
-
       hasPlayed = true;
       typing.style.display = "flex";
       delayedMessage.classList.remove("is-visible");
@@ -618,12 +615,13 @@ timeline
     if (reduceMotion) {
       typing.style.display = "none";
       delayedMessage.classList.add("is-visible");
+      gsap.set(chat, { opacity: 1, y: 0, scale: 1, clearProps: "visibility" });
       return;
     }
 
     ScrollTrigger.create({
       trigger: chat,
-      start: "top 76%",
+      start: "top 78%",
       once: true,
       onEnter: playConversation,
       onKill: () => {
@@ -631,240 +629,226 @@ timeline
       }
     });
 
-    gsap.from(chat, {
-      y: 70,
-      scale: 0.94,
-      opacity: 0,
-      duration: 1.05,
-      ease: "power4.out",
-      scrollTrigger: {
-        trigger: chat,
-        start: "top 85%",
-        once: true
-      }
-    });
+    const isMobileContact = window.matchMedia("(max-width: 960px)").matches;
 
-    gsap.from(
-      chat.querySelectorAll(
-        ".contact-chat__header > *, .contact-chat__message--incoming:first-of-type"
-      ),
-      {
-        y: 18,
+    if (isMobileContact) {
+      gsap.set(chat, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        clearProps: "visibility,transform"
+      });
+    } else {
+      gsap.from(chat, {
+        y: 70,
+        scale: 0.94,
         opacity: 0,
-        stagger: 0.07,
-        duration: 0.65,
-        delay: 0.25,
-        ease: "power3.out",
+        duration: 1.05,
+        ease: "power4.out",
+        immediateRender: false,
         scrollTrigger: {
           trigger: chat,
           start: "top 85%",
-          once: true
+          once: true,
+          invalidateOnRefresh: true
         }
-      }
-    );
+      });
+
+      gsap.from(
+        chat.querySelectorAll(
+          ".contact-chat__header > *, .contact-chat__message--incoming:first-of-type"
+        ),
+        {
+          y: 18,
+          opacity: 0,
+          stagger: 0.07,
+          duration: 0.65,
+          delay: 0.25,
+          ease: "power3.out",
+          immediateRender: false,
+          scrollTrigger: {
+            trigger: chat,
+            start: "top 85%",
+            once: true,
+            invalidateOnRefresh: true
+          }
+        }
+      );
+    }
   }
 
   function initHeroSequence() {
     const hero = document.querySelector("#heroSequence");
     const images = gsap.utils.toArray("[data-hero-image]");
-    const progressItems = gsap.utils.toArray(
-      ".hero-progress span"
-    );
+    const progressItems = gsap.utils.toArray(".hero-progress span");
+    const numberElement = document.querySelector("#heroSceneNumber");
+    const labelElement = document.querySelector("#heroSceneLabel");
+    const descriptionElement = document.querySelector("#heroSceneDescription");
 
-    const numberElement = document.querySelector(
-      "#heroSceneNumber"
-    );
-    const labelElement = document.querySelector(
-      "#heroSceneLabel"
-    );
-    const descriptionElement = document.querySelector(
-      "#heroSceneDescription"
-    );
-
-    if (
-      !hero ||
-      images.length === 0 ||
-      !numberElement ||
-      !labelElement ||
-      !descriptionElement
-    ) {
+    if (!hero || !images.length || !numberElement || !labelElement || !descriptionElement) {
       return;
     }
 
     const heroScenes = {
       es: [
-        {
-          number: "01",
-          label: "Vivienda",
-          description: "Arquitectura concebida desde la vida cotidiana, el lugar y quienes lo habitan."
-        },
-        {
-          number: "02",
-          label: "Inmobiliario",
-          description: "Desarrollos de gran escala abordados con visión urbana, coordinación técnica y criterio de largo plazo."
-        },
-        {
-          number: "03",
-          label: "Comercial",
-          description: "Espacios donde arquitectura, identidad y operación convergen para crear una experiencia consistente."
-        },
-        {
-          number: "04",
-          label: "Industrial",
-          description: "Infraestructura de alta exigencia diseñada para operar con precisión, eficiencia y solidez."
-        }
+        { number: "01", label: "Vivienda", description: "Arquitectura concebida desde la vida cotidiana, el lugar y quienes lo habitan." },
+        { number: "02", label: "Inmobiliario", description: "Desarrollos de gran escala abordados con visión urbana, coordinación técnica y criterio de largo plazo." },
+        { number: "03", label: "Comercial", description: "Espacios donde arquitectura, identidad y operación convergen para crear una experiencia consistente." },
+        { number: "04", label: "Industrial", description: "Infraestructura de alta exigencia diseñada para operar con precisión, eficiencia y solidez." }
       ],
       en: [
-        {
-          number: "01",
-          label: "Residential",
-          description: "Architecture shaped by everyday life, the character of place and those who inhabit it."
-        },
-        {
-          number: "02",
-          label: "Real estate",
-          description: "Large-scale developments approached through urban vision, technical coordination and long-term thinking."
-        },
-        {
-          number: "03",
-          label: "Commercial",
-          description: "Spaces where architecture, identity and operation converge into a consistent experience."
-        },
-        {
-          number: "04",
-          label: "Industrial",
-          description: "High-performance infrastructure designed to operate with precision, efficiency and strength."
-        }
+        { number: "01", label: "Residential", description: "Architecture shaped by everyday life, the character of place and those who inhabit it." },
+        { number: "02", label: "Real estate", description: "Large-scale developments approached through urban vision, technical coordination and long-term thinking." },
+        { number: "03", label: "Commercial", description: "Spaces where architecture, identity and operation converge into a consistent experience." },
+        { number: "04", label: "Industrial", description: "High-performance infrastructure designed to operate with precision, efficiency and strength." }
       ]
     };
 
-    function getHeroScenes() {
+    const cameraMoves = [
+      { fromScale: 1.035, toScale: 1.14, x: 2.5, y: -2 },
+      { fromScale: 1.12, toScale: 1.035, x: -3.5, y: 1.5 },
+      { fromScale: 1.04, toScale: 1.13, x: 3, y: 2 },
+      { fromScale: 1.11, toScale: 1.04, x: -2, y: -2.5 }
+    ];
+
+    const getScenes = () => {
       const lang = document.documentElement.lang || "es";
       return heroScenes[lang] || heroScenes.es;
-    }
+    };
 
-    let activeIndex = 0;
+    const totalScenes = images.length;
+    const transitionWindow = 0.3;
+    let activeIndex = -1;
 
     gsap.set(images, {
       autoAlpha: 0,
-      scale: 1.1
+      scale: 1.06,
+      xPercent: 0,
+      yPercent: 0,
+      transformOrigin: "center center"
     });
 
-    gsap.set(images[0], {
-      autoAlpha: 1,
-      scale: 1.04
-    });
+    gsap.set(images[0], { autoAlpha: 1 });
 
-    function activateScene(index) {
+    function renderSceneText(index, animate = true) {
       if (index === activeIndex) return;
-
-      const previousIndex = activeIndex;
       activeIndex = index;
+      const scene = getScenes()[index];
 
-      gsap.to(images[previousIndex], {
-        autoAlpha: 0,
-        scale: 1.14,
-        duration: 0.85,
-        ease: "power3.inOut",
-        overwrite: true
+      progressItems.forEach((item, itemIndex) => {
+        item.classList.toggle("is-active", itemIndex === index);
       });
 
-      gsap.fromTo(
-        images[index],
-        {
-          autoAlpha: 0,
-          scale: 1.13
-        },
-        {
-          autoAlpha: 1,
-          scale: 1.04,
-          duration: 1,
-          ease: "power3.out",
-          overwrite: true
-        }
-      );
+      if (!animate) {
+        numberElement.textContent = scene.number;
+        labelElement.textContent = scene.label;
+        descriptionElement.textContent = scene.description;
+        return;
+      }
 
-      gsap.timeline()
-        .to(
-          [numberElement, labelElement, descriptionElement],
-          {
-            y: -14,
-            opacity: 0,
-            duration: 0.22,
-            stagger: 0.025,
-            ease: "power2.in"
-          }
-        )
+      gsap.timeline({ defaults: { overwrite: true } })
+        .to([numberElement, labelElement, descriptionElement], {
+          y: -12,
+          opacity: 0,
+          duration: 0.16,
+          stagger: 0.018,
+          ease: "power2.in"
+        })
         .add(() => {
-          const scene = getHeroScenes()[index];
           numberElement.textContent = scene.number;
           labelElement.textContent = scene.label;
           descriptionElement.textContent = scene.description;
         })
-        .set(
-          [numberElement, labelElement, descriptionElement],
-          { y: 18 }
-        )
-        .to(
-          [numberElement, labelElement, descriptionElement],
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.45,
-            stagger: 0.045,
-            ease: "power3.out"
-          }
-        );
-
-      progressItems.forEach((item, itemIndex) => {
-        item.classList.toggle(
-          "is-active",
-          itemIndex === index
-        );
-      });
+        .set([numberElement, labelElement, descriptionElement], { y: 15 })
+        .to([numberElement, labelElement, descriptionElement], {
+          y: 0,
+          opacity: 1,
+          duration: 0.34,
+          stagger: 0.035,
+          ease: "power3.out"
+        });
     }
+
+    renderSceneText(0, false);
+
+    const getScrollDistance = () =>
+      window.innerHeight *
+      (window.matchMedia("(max-width: 760px)").matches ? 1.3 : 1.5);
 
     ScrollTrigger.create({
       trigger: hero,
       start: "top top",
-      end: () => `+=${window.innerHeight * 4}`,
+      end: () => `+=${getScrollDistance()}`,
       pin: true,
-      scrub: true,
+      scrub: 0.18,
       anticipatePin: 1,
       invalidateOnRefresh: true,
       onUpdate(self) {
-        const index = Math.min(
-          images.length - 1,
-          Math.floor(self.progress * images.length)
+        const scenePosition = self.progress * totalScenes;
+        const baseIndex = Math.min(totalScenes - 1, Math.floor(scenePosition));
+        const localProgress = scenePosition - Math.floor(scenePosition);
+        const nextIndex = Math.min(totalScenes - 1, baseIndex + 1);
+
+        const fadeProgress = gsap.utils.clamp(
+          0,
+          1,
+          (localProgress - (1 - transitionWindow)) / transitionWindow
         );
 
-        activateScene(index);
+        images.forEach((image, index) => {
+          let opacity = 0;
+          if (index === baseIndex) opacity = 1 - fadeProgress;
+          else if (index === nextIndex) opacity = fadeProgress;
+
+          const move = cameraMoves[index];
+          const sceneLocal =
+            index === baseIndex ? localProgress :
+            index === nextIndex ? fadeProgress : 0;
+
+          gsap.set(image, {
+            autoAlpha: opacity,
+            scale: gsap.utils.interpolate(move.fromScale, move.toScale, sceneLocal),
+            xPercent: move.x * sceneLocal,
+            yPercent: move.y * sceneLocal
+          });
+        });
+
+        renderSceneText(fadeProgress > 0.28 ? nextIndex : baseIndex);
       }
     });
 
+    gsap.to(".hero-content", {
+      yPercent: 7,
+      opacity: 0.76,
+      ease: "none",
+      scrollTrigger: {
+        trigger: hero,
+        start: "top top",
+        end: () => `+=${getScrollDistance()}`,
+        scrub: 0.3,
+        invalidateOnRefresh: true
+      }
+    });
+
+    gsap.to(".hero-scene-info", {
+      yPercent: -7,
+      ease: "none",
+      scrollTrigger: {
+        trigger: hero,
+        start: "top top",
+        end: () => `+=${getScrollDistance()}`,
+        scrub: 0.3,
+        invalidateOnRefresh: true
+      }
+    });
 
     document.addEventListener("languagechange", () => {
-      const scene = getHeroScenes()[activeIndex];
-
+      const scene = getScenes()[Math.max(activeIndex, 0)];
       if (!scene) return;
 
       numberElement.textContent = scene.number;
       labelElement.textContent = scene.label;
       descriptionElement.textContent = scene.description;
-    });
-
-    images.forEach((image, index) => {
-      gsap.to(image, {
-        backgroundPosition: "50% 62%",
-        ease: "none",
-        scrollTrigger: {
-          trigger: hero,
-          start: "top top",
-          end: () => `+=${window.innerHeight * 4}`,
-          scrub: 1 + index * 0.12,
-          invalidateOnRefresh: true
-        }
-      });
     });
   }
 
@@ -1256,3 +1240,7 @@ function initPortfolioGallery(config) {
 }
 
 PORTFOLIO_GALLERIES.forEach(initPortfolioGallery);
+
+requestAnimationFrame(() => {
+  window.ScrollTrigger?.refresh(true);
+});
