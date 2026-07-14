@@ -743,7 +743,7 @@ timeline
     };
 
     const totalScenes = images.length;
-    const transitionWindow = 0.3;
+    const transitionWindow = 0.46;
     let activeIndex = -1;
 
     gsap.set(images, {
@@ -799,14 +799,14 @@ timeline
 
     const getScrollDistance = () =>
       window.innerHeight *
-      (window.matchMedia("(max-width: 760px)").matches ? 2.35 : 2.8);
+      (window.matchMedia("(max-width: 760px)").matches ? 0.3 : 0.4);
 
     ScrollTrigger.create({
       trigger: hero,
       start: "top top",
       end: () => `+=${getScrollDistance()}`,
       pin: true,
-      scrub: 0.18,
+      scrub: 0.06,
       anticipatePin: 1,
       invalidateOnRefresh: true,
       onUpdate(self) {
@@ -851,7 +851,7 @@ timeline
         trigger: hero,
         start: "top top",
         end: () => `+=${getScrollDistance()}`,
-        scrub: 0.3,
+        scrub: 0.1,
         invalidateOnRefresh: true
       }
     });
