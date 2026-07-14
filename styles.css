@@ -2299,3 +2299,64 @@ body.is-loading {
     opacity: .08;
   }
 }
+/* =========================================================
+   CLEANUP: LOADER + RETÍCULAS ANTERIORES
+========================================================= */
+
+.site-loader,
+.organic-grid,
+.construction-lines,
+.architectural-grid {
+  display: none !important;
+}
+
+/* Por seguridad, nunca bloqueamos el scroll por un loader antiguo. */
+body.is-loading {
+  overflow: auto !important;
+}
+
+/* =========================================================
+   HERO — LÍNEA DE CROQUIS TRANSITORIA
+========================================================= */
+
+.hero-transition-sketch {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+
+  width: 100%;
+  height: 100%;
+
+  pointer-events: none;
+  overflow: visible;
+
+  opacity: 0;
+  visibility: hidden;
+}
+
+.hero-transition-sketch path {
+  fill: none;
+  stroke: rgba(255, 255, 255, .7);
+  stroke-width: 1.15;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+
+  filter: drop-shadow(0 0 8px rgba(0, 0, 0, .18));
+
+  will-change:
+    stroke-dashoffset,
+    opacity;
+}
+
+@media (max-width: 760px) {
+  .hero-transition-sketch path {
+    stroke-width: .9;
+    stroke: rgba(255, 255, 255, .56);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-transition-sketch {
+    display: none;
+  }
+}
