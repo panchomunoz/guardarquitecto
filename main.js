@@ -240,26 +240,31 @@ $$('[data-lang]').forEach(btn=>btn.addEventListener('click',()=>setLanguage(btn.
 const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target)}}),{threshold:.12,rootMargin:'0px 0px -6%'});$$('.reveal').forEach(el=>observer.observe(el));
 if(matchMedia('(prefers-reduced-motion: reduce)').matches){$$('.reveal').forEach(el=>el.classList.add('visible'));document.documentElement.style.scrollBehavior='auto'}
 const areaCards = document.querySelectorAll(".area-card");
-
-
+const areaTouchQuery = window.matchMedia("(hover: none), (pointer: coarse)");
 
 areaCards.forEach((card) => {
-  card.addEventListener("click", (event) => {
-    const isTouchDevice = window.matchMedia("(hover: none)").matches;
+  card.addEventListener("pointerup", (event) => {
+    if (!areaTouchQuery.matches) return;
+    if (event.target.closest("a")) return;
 
-    if (!isTouchDevice) return;
+    const activate = !card.classList.contains("is-active");
 
-    const isActive = card.classList.contains("is-active");
+    areaCards.forEach((item) => {
+      item.classList.remove("is-active");
+    });
 
-    if (!isActive) {
-      event.preventDefault();
-
-      areaCards.forEach((item) => {
-        item.classList.remove("is-active");
-      });
-
+    if (activate) {
       card.classList.add("is-active");
     }
+  });
+});
+
+document.addEventListener("pointerup", (event) => {
+  if (!areaTouchQuery.matches) return;
+  if (event.target.closest(".area-card")) return;
+
+  areaCards.forEach((card) => {
+    card.classList.remove("is-active");
   });
 });
 
@@ -300,23 +305,44 @@ if (window.gsap && window.ScrollTrigger) {
         });
       });
 
-    gsap.utils.toArray(".area-card").forEach((card, index) => {
-      gsap.fromTo(
-        card,
-        { clipPath: "inset(0 100% 0 0)" },
-        {
-          clipPath: "inset(0 0% 0 0)",
-          duration: 1.15,
-          delay: (index % 2) * 0.08,
-          ease: "power4.inOut",
-          scrollTrigger: {
-            trigger: card,
-            start: "top 86%",
-            once: true
+    const areaCardsForMotion = gsap.utils.toArray(".area-card");
+    const mobileAreas = window.matchMedia("(max-width: 760px)").matches;
+
+    if (mobileAreas) {
+      gsap.set(areaCardsForMotion, {
+        opacity: 1,
+        x: 0,
+        y: 0,
+        clearProps: "clipPath,transform"
+      });
+
+      areaCardsForMotion.forEach((card) => {
+        card.classList.add("visible");
+      });
+    } else {
+      areaCardsForMotion.forEach((card, index) => {
+        gsap.fromTo(
+          card,
+          {
+            clipPath: "inset(0 100% 0 0)",
+            opacity: 0.999
+          },
+          {
+            clipPath: "inset(0 0% 0 0)",
+            opacity: 1,
+            duration: 1.15,
+            delay: (index % 2) * 0.08,
+            ease: "power4.inOut",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 86%",
+              once: true,
+              invalidateOnRefresh: true
+            }
           }
-        }
-      );
-    });
+        );
+      });
+    }
 
     const statementFrame = document.querySelector(".statement-frame");
 
@@ -773,7 +799,7 @@ timeline
 
     const getScrollDistance = () =>
       window.innerHeight *
-      (window.matchMedia("(max-width: 760px)").matches ? 1.3 : 1.5);
+      (window.matchMedia("(max-width: 760px)").matches ? 2.35 : 2.8);
 
     ScrollTrigger.create({
       trigger: hero,
@@ -1244,3 +1270,165 @@ PORTFOLIO_GALLERIES.forEach(initPortfolioGallery);
 requestAnimationFrame(() => {
   window.ScrollTrigger?.refresh(true);
 });
+
+
+window.addEventListener("pageshow", () => {
+  requestAnimationFrame(() => {
+    window.ScrollTrigger?.refresh(true);
+  });
+});
+
+
+/* =========================================================
+   ARCHITECTURAL GRID
+   La estructura se construye con el hero, respira durante
+   el recorrido y desaparece al alcanzar el footer.
+========================================================= */
+
+function initArchitecturalGrid() {
+  const grid = document.querySelector(
+    ".architectural-grid, .construction-lines"
+  );
+
+  if (!grid || !window.gsap || !window.ScrollTrigger) {
+    return;
+  }
+
+  const lines = gsap.utils.toArray("i", grid);
+
+  if (!lines.length) {
+    return;
+  }
+
+  /*
+    Conserva compatibilidad con el HTML actual sin obligar
+    a renombrar inmediatamente construction-lines.
+  */
+  grid.classList.add("architectural-grid");
+
+  const reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+
+  if (reduceMotion) {
+    gsap.set(lines, {
+      scaleY: 1,
+      opacity: 1,
+      x: 0,
+      transformOrigin: "bottom center"
+    });
+
+    return;
+  }
+
+  gsap.set(grid, {
+    autoAlpha: 1
+  });
+
+  gsap.set(lines, {
+    scaleY: 0,
+    opacity: 0,
+    transformOrigin: "bottom center",
+    force3D: true
+  });
+
+  /*
+    Construcción inicial:
+    cada eje comienza y termina en un momento ligeramente distinto.
+    El progreso completo coincide con el final del hero fijado.
+  */
+  const buildTimeline = gsap.timeline({
+    scrollTrigger: {
+      trigger: "#heroSequence",
+      start: "top top",
+      end: "bottom top",
+      scrub: 0.45,
+      invalidateOnRefresh: true
+    }
+  });
+
+  const starts = [0, 0.11, 0.23, 0.37];
+  const durations = [0.72, 0.82, 0.7, 0.63];
+
+  lines.forEach((line, index) => {
+    buildTimeline.to(
+      line,
+      {
+        scaleY: 1,
+        opacity: index === 0 || index === lines.length - 1
+          ? 0.23
+          : 0.18,
+        duration: durations[index] ?? 0.72,
+        ease: "none"
+      },
+      starts[index] ?? index * 0.1
+    );
+  });
+
+  /*
+    Respiración casi imperceptible.
+    Se pausa durante la salida del footer para no competir con ella.
+  */
+  const breathingTweens = lines.map((line, index) =>
+    gsap.to(line, {
+      x: index % 2 === 0 ? 1.4 : -1.4,
+      duration: 15 + index * 2.4,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut",
+      delay: index * 0.65,
+      force3D: true
+    })
+  );
+
+  /*
+    Al llegar al cierre, la retícula abandona el sitio hacia arriba.
+  */
+  const footer = document.querySelector(".footer");
+
+  if (footer) {
+    ScrollTrigger.create({
+      trigger: footer,
+      start: "top 92%",
+      end: "bottom bottom",
+      scrub: 0.6,
+
+      onEnter: () => {
+        breathingTweens.forEach((tween) => tween.pause());
+      },
+
+      onLeaveBack: () => {
+        breathingTweens.forEach((tween) => tween.resume());
+      },
+
+      onUpdate(self) {
+        const progress = self.progress;
+
+        lines.forEach((line, index) => {
+          const staggered = gsap.utils.clamp(
+            0,
+            1,
+            (progress - index * 0.055) / 0.78
+          );
+
+          gsap.set(line, {
+            yPercent: -110 * staggered,
+            opacity:
+              (index === 0 || index === lines.length - 1
+                ? 0.23
+                : 0.18) *
+              (1 - staggered)
+          });
+        });
+      }
+    });
+  }
+
+  window.addEventListener("pageshow", () => {
+    requestAnimationFrame(() => {
+      window.ScrollTrigger?.refresh(true);
+    });
+  });
+}
+
+initArchitecturalGrid();

@@ -1923,3 +1923,379 @@
   grid-column: span 7;
   grid-row: span 6;
 }
+.map-frame{
+    position:relative;
+    overflow:hidden;
+
+    width:100%;
+    aspect-ratio:16/10;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    background:#111;
+}
+
+.map-frame iframe{
+
+    width:100%;
+    height:100%;
+
+    border:0;
+
+    filter:
+        grayscale(1)
+        contrast(1.2)
+        brightness(.78);
+
+    transition:
+        transform .8s,
+        filter .8s;
+}
+
+.map-frame:hover iframe{
+
+    transform:scale(1.03);
+
+    filter:
+        grayscale(1)
+        contrast(1.25)
+        brightness(.9);
+}
+
+.map-overlay{
+
+    position:absolute;
+    inset:0;
+
+    pointer-events:none;
+
+    background:
+        linear-gradient(
+            rgba(255,255,255,.03),
+            rgba(255,255,255,0)
+        );
+
+    mix-blend-mode:screen;
+}
+/* =========================================================
+   FIX MOBILE — SECCIÓN ÁREAS
+========================================================= */
+@media (max-width: 760px) {
+  #areas,
+  #areas .area-grid {
+    overflow: visible;
+  }
+
+  #areas .area-grid {
+    contain: layout;
+    transform: translateZ(0);
+  }
+
+  #areas .area-card,
+  #areas .area-card.reveal,
+  #areas .area-card.reveal.visible {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+    translate: none !important;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  #areas .area-card::before {
+    filter: grayscale(1) contrast(1.02) !important;
+    transform: translateZ(0) scale(1.035) !important;
+    transition: transform 500ms cubic-bezier(.22, 1, .36, 1) !important;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  #areas .area-card::after {
+    transform: translateZ(0);
+    transition: opacity 420ms ease !important;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  #areas .area-card.is-active::before {
+    transform: translateZ(0) scale(1.055) !important;
+  }
+
+  #areas .area-card.is-active::after {
+    opacity: .22 !important;
+  }
+
+  #areas .area-card > * {
+    transform: translateZ(0);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #areas .area-card:active {
+    transform: none !important;
+  }
+}
+/* =========================================================
+   FIX MOBILE — SECCIÓN ÁREAS
+========================================================= */
+@media (max-width: 760px) {
+  #areas,
+  #areas .area-grid {
+    overflow: visible;
+  }
+
+  #areas .area-grid {
+    contain: layout;
+    transform: translateZ(0);
+  }
+
+  #areas .area-card,
+  #areas .area-card.reveal,
+  #areas .area-card.reveal.visible {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+    translate: none !important;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  #areas .area-card::before {
+    filter: grayscale(1) contrast(1.02) !important;
+    transform: translateZ(0) scale(1.035) !important;
+    transition: transform 500ms cubic-bezier(.22, 1, .36, 1) !important;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  #areas .area-card::after {
+    transform: translateZ(0);
+    transition: opacity 420ms ease !important;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  #areas .area-card.is-active::before {
+    transform: translateZ(0) scale(1.055) !important;
+  }
+
+  #areas .area-card.is-active::after {
+    opacity: .22 !important;
+  }
+
+  #areas .area-card > * {
+    transform: translateZ(0);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #areas .area-card:active {
+    transform: none !important;
+  }
+}
+
+
+/* =========================================================
+   ARCHITECTURAL GRID
+   Pegar al final de styles.css
+========================================================= */
+
+.construction-lines,
+.architectural-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  padding: 0 var(--pad);
+
+  pointer-events: none;
+  overflow: hidden;
+
+  /*
+    El contenedor ya no tiene una opacidad global.
+    GSAP controla cada eje individualmente.
+  */
+  opacity: 1;
+  visibility: visible;
+}
+
+.construction-lines i,
+.architectural-grid i {
+  display: block;
+  min-width: 0;
+
+  border-left: 1px solid var(--line);
+
+  opacity: 0;
+  transform: scaleY(0);
+  transform-origin: bottom center;
+
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.construction-lines i:last-child,
+.architectural-grid i:last-child {
+  border-right: 1px solid var(--line);
+}
+
+/*
+  Las líneas no deben imponerse sobre bloques oscuros:
+  la baja opacidad individual mantiene la textura muy sutil.
+*/
+.hero ~ .chapter {
+  position: relative;
+}
+
+/* Mobile: solo dos ejes, más aire y menos presencia visual. */
+@media (max-width: 960px) {
+  .construction-lines,
+  .architectural-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 0 22px;
+  }
+
+  .construction-lines i:nth-child(n + 3),
+  .architectural-grid i:nth-child(n + 3) {
+    display: none;
+  }
+}
+
+/*
+  En teléfonos pequeños, la retícula debe sentirse como guía,
+  no como una reja encima del contenido.
+*/
+@media (max-width: 560px) {
+  .construction-lines,
+  .architectural-grid {
+    padding: 0 18px;
+  }
+
+  .construction-lines i,
+  .architectural-grid i {
+    border-color: rgba(17, 17, 17, .085);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .construction-lines i,
+  .architectural-grid i {
+    opacity: .12;
+    transform: none;
+  }
+}
+/* =========================================================
+   LOGO LOADER
+========================================================= */
+
+body.is-loading {
+  overflow: hidden;
+}
+
+.site-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: grid;
+  place-items: center;
+
+  overflow: hidden;
+  background: #0d0d0d;
+  color: #fff;
+
+  clip-path: inset(0 0 0 0);
+}
+
+.site-loader__inner {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(560px, calc(100vw - 48px));
+  min-height: 220px;
+}
+
+.site-loader__logo {
+  position: relative;
+  z-index: 2;
+  width: clamp(160px, 24vw, 310px);
+  height: auto;
+  filter: brightness(0) invert(1);
+}
+
+.site-loader__axis {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+
+  width: 1px;
+  background: rgba(255, 255, 255, .32);
+}
+
+/* =========================================================
+   ORGANIC ARCHITECTURAL GRID
+========================================================= */
+
+.construction-lines {
+  display: none !important;
+}
+
+.organic-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+
+  width: 100%;
+  height: 100%;
+
+  pointer-events: none;
+  overflow: visible;
+
+  opacity: .18;
+}
+
+.organic-grid path {
+  fill: none;
+  stroke: rgba(17, 17, 17, .18);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+
+  will-change: d, opacity, stroke-dashoffset;
+}
+
+@media (max-width: 960px) {
+  .organic-grid path {
+    stroke: rgba(17, 17, 17, .11);
+  }
+
+  .organic-grid path:nth-child(2),
+  .organic-grid path:nth-child(3) {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .site-loader__logo {
+    width: 182px;
+  }
+
+  .organic-grid {
+    opacity: .12;
+  }
+
+  .organic-grid path {
+    stroke: rgba(17, 17, 17, .085);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-loader {
+    display: none;
+  }
+
+  .organic-grid {
+    opacity: .08;
+  }
+}
